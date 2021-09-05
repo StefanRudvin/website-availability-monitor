@@ -1,5 +1,3 @@
-
-
 class WebsiteAvailabilityItem:
     def __init__(self, website_url, status_code, response_time, regex_pattern_matches):
         self.website_url = website_url

@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
 
+import argparse
+import os
 import sys
 
-from src.service.website_monitor_service import WebsiteMonitorService
 from environs import Env
-import os
-import argparse
+
+from src.service.consumer_service import ConsumerService
+from src.service.logging_service import LoggingService
+from src.service.producer_service import ProducerService
 
 
 def main():
     """ Derived from https://github.com/aiven/aiven-examples/blob/master/kafka/python/main.py """
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--service-uri', help="Service URI in the form host:port",
+    parser.add_argument('--kafka-service-uri', help="Kafka Service URI in the form host:port",
+                        required=True)
+    parser.add_argument('--db-service-uri', help="PostgreSQL Database service URI in the form host:port. "
+                                                 "Can be left empty if running the producer.",
                         required=True)
     parser.add_argument('--ca-path', help="Path to project CA certificate",
                         required=True)
@@ -25,6 +31,9 @@ def main():
                                                                                "availability monitor")
     parser.add_argument('--producer', action='store_true', default=False, help="Run Kafka producer for the "
                                                                                "availability monitor")
+    parser.add_argument('--logger', action='store_true', default=False,
+                        help="Run logger that prints out recent updates to the DB.")
+
     env = Env()
     env.read_env()
     validate_env(env)
@@ -32,19 +41,25 @@ def main():
     args = parser.parse_args()
     # validate_args(args)
 
-    monitor_service = WebsiteMonitorService(
-        args.service_uri,
-        args.ca_path,
-        args.cert_path,
-        args.key_path,
-        env.str("WEBSITE_MONITOR_AVAILABILITY_TOPIC"),
-        env.int("PING_INTERVAL_SECONDS"),
-        env.str("WEBSITE_MONITOR_TABLE_NAME"))
-
     if args.producer:
-        monitor_service.run_producer()
+        ProducerService(
+            args.kafka_service_uri,
+            args.ca_path,
+            args.cert_path,
+            args.key_path,
+            env.str("WEBSITE_MONITOR_AVAILABILITY_TOPIC"),
+            env.int("PING_INTERVAL_SECONDS")).run()
+
     elif args.consumer:
-        monitor_service.run_consumer()
+        ConsumerService(args.kafka_service_uri,
+                        args.ca_path,
+                        args.cert_path,
+                        args.key_path,
+                        env.str("WEBSITE_MONITOR_AVAILABILITY_TOPIC"),
+                        env.str("WEBSITE_MONITOR_TABLE_NAME"),
+                        args.db_service_uri).run()
+    elif args.logger:
+        LoggingService(args.db_service_uri, env.str("WEBSITE_MONITOR_TABLE_NAME")).run()
 
 
 def validate_env(env):

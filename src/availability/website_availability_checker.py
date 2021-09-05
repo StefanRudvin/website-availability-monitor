@@ -1,8 +1,9 @@
 import json
 import os
+import re
+
 import requests
 from bs4 import BeautifulSoup
-import re
 
 from src.models.website_availability_item import WebsiteAvailabilityItem
 
@@ -31,10 +32,10 @@ def get_website_availability(website_url, regex_patterns):
 
     for pattern in regex_patterns:
         if re.search(pattern, page_contents):
-            print("Found pattern: " + pattern)
+            # print("Found pattern: " + pattern)
             regex_pattern_statuses[pattern] = True
         else:
-            print("Did not find pattern: " + pattern)
+            # print("Did not find pattern: " + pattern)
             regex_pattern_statuses[pattern] = False
 
     return response.status_code, response.elapsed.microseconds, regex_pattern_statuses
