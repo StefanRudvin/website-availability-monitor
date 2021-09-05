@@ -1,0 +1,13 @@
+{
+  "https://yle.fi/": [
+    "(Urheilu)",
+    "(Urheiluu)",
+    "(Valikko)",
+    "(thistextislikelynotfoundinthiswebsite)",
+    "[a-z]+"
+  ],
+  "https://www.bbc.com/": [
+    "(Welcome to BBC.com)",
+    "(thistextislikelynotfoundinthiswebsite)"
+  ]
+}
