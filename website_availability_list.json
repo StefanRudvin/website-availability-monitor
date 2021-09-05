@@ -7,7 +7,7 @@
     "[a-z]+"
   ],
   "https://www.bbc.com/": [
-    "(Welcome to BBC.com)",
+    "(Home)",
     "(thistextislikelynotfoundinthiswebsite)"
   ]
 }

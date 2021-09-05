@@ -6,9 +6,9 @@ import sys
 
 from environs import Env
 
-from src.service.consumer_service import ConsumerService
-from src.service.logging_service import LoggingService
-from src.service.producer_service import ProducerService
+from src.service.consumer_service import consumer_service
+from src.service.logging_service import logging_service
+from src.service.producer_service import producer_service
 
 
 def main():
@@ -18,7 +18,7 @@ def main():
     parser.add_argument('--kafka-service-uri', help="Kafka Service URI in the form host:port",
                         required=True)
     parser.add_argument('--db-service-uri', help="PostgreSQL Database service URI in the form host:port. "
-                                                 "Can be left empty if running the producer.",
+                                                 "Can be left blank if only running the producer.",
                         required=True)
     parser.add_argument('--ca-path', help="Path to project CA certificate",
                         required=True)
@@ -39,27 +39,27 @@ def main():
     validate_env(env)
 
     args = parser.parse_args()
-    # validate_args(args)
+    validate_args(args)
 
     if args.producer:
-        ProducerService(
+        producer_service(
             args.kafka_service_uri,
             args.ca_path,
             args.cert_path,
             args.key_path,
             env.str("WEBSITE_MONITOR_AVAILABILITY_TOPIC"),
-            env.int("PING_INTERVAL_SECONDS")).run()
+            env.int("PING_INTERVAL_SECONDS"))
 
     elif args.consumer:
-        ConsumerService(args.kafka_service_uri,
-                        args.ca_path,
-                        args.cert_path,
-                        args.key_path,
-                        env.str("WEBSITE_MONITOR_AVAILABILITY_TOPIC"),
-                        env.str("WEBSITE_MONITOR_TABLE_NAME"),
-                        args.db_service_uri).run()
+        consumer_service(args.kafka_service_uri,
+                         args.ca_path,
+                         args.cert_path,
+                         args.key_path,
+                         env.str("WEBSITE_MONITOR_AVAILABILITY_TOPIC"),
+                         env.str("WEBSITE_MONITOR_TABLE_NAME"),
+                         args.db_service_uri)
     elif args.logger:
-        LoggingService(args.db_service_uri, env.str("WEBSITE_MONITOR_TABLE_NAME")).run()
+        logging_service(args.db_service_uri, env.str("WEBSITE_MONITOR_TABLE_NAME"))
 
 
 def validate_env(env):
@@ -79,8 +79,8 @@ def validate_args(args):
                  f"You can retrieve these details from Overview tab in the Aiven Console")
     if args.producer and args.consumer:
         fail("--producer and --consumer are mutually exclusive")
-    elif not args.producer and not args.consumer:
-        fail("--producer or --consumer are required")
+    elif not args.producer and not args.consumer and not args.logger:
+        fail("--producer, --logger or --consumer are required")
 
 
 def fail(message):

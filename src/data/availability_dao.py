@@ -10,9 +10,7 @@ class AvailabilityDao:
         self.service_uri = service_uri
         self.table_name = table_name
 
-        self.cursor = None
-        self.db_conn = None
-        self.initialize_connection()
+        self.db_conn, self.cursor = self.initialize_connection()
         self.create_table_if_not_exist()
 
     def save(self, availability_items):
@@ -26,26 +24,20 @@ class AvailabilityDao:
         self.db_conn.commit()
         print("Saved " + str(len(availability_items)) + " items to the DB.")
 
-    def get_recent_updates(self, limit):
-        print("Fetching " + str(limit) + " items:")
-        self.cursor.execute("SELECT * FROM " + self.table_name + " ORDER BY id DESC LIMIT " + str(limit) + ";")
-        result = self.cursor.fetchall()
-        [print(x) for x in result]
-
     def close_connection(self):
         self.cursor.close()
         self.db_conn.close()
 
     def initialize_connection(self):
-        self.db_conn = psycopg2.connect(self.service_uri)
-        self.cursor = self.db_conn.cursor()
-        self.cursor.execute("SELECT current_database()")
+        db_conn = psycopg2.connect(self.service_uri)
+        cursor = db_conn.cursor()
+        cursor.execute("SELECT current_database()")
 
-        result = self.cursor.fetchone()
+        result = cursor.fetchone()
         print("Successfully connected to: {}".format(result[0]))
+        return db_conn, cursor
 
     def create_table_if_not_exist(self):
-        print("CREATING")
         try:
             self.cursor.execute(
                 """
@@ -58,6 +50,11 @@ class AvailabilityDao:
         except:
             print("Table :" + self.table_name + " did not exist, creating.")
             self.create_table()
+
+    def get_recent_updates(self, limit):
+        print("Fetching " + str(limit) + " items:")
+        self.cursor.execute("SELECT * FROM " + self.table_name + " ORDER BY id DESC LIMIT " + str(limit) + ";")
+        return self.cursor.fetchall()
 
     def create_table(self):
         """ Derived from https://www.postgresqltutorial.com/postgresql-python/create-tables/"""

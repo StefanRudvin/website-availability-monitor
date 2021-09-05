@@ -44,6 +44,4 @@ def get_website_availability(website_url, regex_patterns):
 def get_input_website_data():
     script_dir = os.path.dirname(__file__)
     website_list_relative_path = './../../website_availability_list.json'
-    json_file = open(os.path.join(script_dir, website_list_relative_path), )
-
-    return json.load(json_file)
+    return json.load(open(os.path.join(script_dir, website_list_relative_path), ))
