@@ -28,9 +28,9 @@ def main():
                         required=True)
 
     parser.add_argument('--consumer', action='store_true', default=False, help="Run Kafka consumer for the "
-                                                                               "availability monitor")
+                                                                               "processing monitor")
     parser.add_argument('--producer', action='store_true', default=False, help="Run Kafka producer for the "
-                                                                               "availability monitor")
+                                                                               "processing monitor")
     parser.add_argument('--logger', action='store_true', default=False,
                         help="Run logger that prints out recent updates to the DB.")
 

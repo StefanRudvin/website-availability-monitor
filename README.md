@@ -10,12 +10,13 @@ A Website Availability Service that monitors website response time + regex avail
 - Add your preferred websites urls and regexes to `website_availability_list.json`
 
 ### Running the availability monitor
-- Run `Main.py` with the required Aiven parameters and use either `--producer`, `--consumer` or `logger`
-- E.g: `python3 main.py --ca-path './LOC/ca.pem' --cert-path './LOC/service.cert' --key-path './LOC/service.key' --db-service-uri 'XXX' --kafka-service-uri 'XXX' --producer`
+- Run `Main.py` with the required Aiven parameters and use either `--producer`, `--consumer` or `--logger`
+- E.g: `python3 main.py --ca-path './XX/ca.pem' --cert-path './XX/service.cert' --key-path './XX/service.key' --db-service-uri 'XXX' --kafka-service-uri 'XXX' --producer`
 - Run tests with `python -m pytest tests/`
 
 ### Design decisions
-- I decided to keep the `--producer`, `--consumer` and `logger` runners separate for separation of concerns as running them all from a single python command (perhaps with threads etc) can be hard to manage.
+- I decided to keep the `--producer`, `--consumer` and `--logger` runners separate for separation of concerns as running them all from a single python command (perhaps with threads etc) can be hard to manage.
+- I decided to save events from Kafka into PostgreSQL manually instead of using a Kafka connector. 
 
 ### Future improvements given more time
 - Use `cursor.execute` instead of `cursor.executemany` in saving availability items for improved write performance.
@@ -23,10 +24,10 @@ A Website Availability Service that monitors website response time + regex avail
 - Use a Kafka connector to save the metrics into ElasticSearch or InfluxDB for more advanced analysis.
 - Add validation and SQL injection protection into the availability list JSON.
 - Handle shutdowns and interruptions better calling `close()` etc
-- Improved test coverage
+- The tests are quite elementary; given more time proper test coverage with e.g. a mock DB would do wonders.
 
 ### Attributions
 - Multiple files have been derived from the Aiven examples on Github: https://github.com/aiven/aiven-examples . These have been labelled in the docstrings per file.
 
 ### Notes
-- While I do not intend to downplay my python skills I will say that I have not worked with Python in a professional capacity outside of jupyter notebooks and scripts. Therefore I may have gotten some python specific things wrong in this project. My main language at work is Java but Python is easier to manage for smaller projects along with it bringing new challenges. 
+- While I do not intend to downplay my python skills I will say that I have not worked extensively with Python in a professional capacity outside of jupyter notebooks and scripts. Therefore I may have gotten some python specific things wrong in this project. My main language at work is Java but Python is easier to manage for smaller projects along with it bringing new challenges. 
